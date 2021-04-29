@@ -15,19 +15,21 @@ import plotly.graph_objs as go
 
 import pandas as pd
 
+from app import app
+
 emploi_resume = pd.read_csv("emploi_resume.csv")
 df_resume = emploi_resume.loc[:,['LOCATION', 'TIME', 'Value']]
 
 emploi = pd.read_csv("emploi.csv")
 df = emploi.loc[:,['Pays', 'TIME', 'Value']].loc[emploi.SUBJECT == 'LREM64FE']
 
-app = dash.Dash()
+# app = dash.Dash()
 
 available_countries = df['Pays'].unique()
 available_countries2 = df_resume['LOCATION'].unique()
 
 
-app.layout = html.Div([
+layout = html.Div([
     html.H2(
             children="Stats détaillées par pays",
             style={
@@ -100,8 +102,8 @@ def update_figure(selected_year):
 
 
 
-if __name__ == '__main__':
-    app.run_server(debug=True, use_reloader=False)
+# if __name__ == '__main__':
+#     app.run_server(debug=True, use_reloader=False)
     
     
     
