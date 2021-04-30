@@ -3,7 +3,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 
 from app import app
-from apps import pib_app, emplois_app, covid_app, importations_app
+from apps import pib_app, emplois_app, covid_app, importations_app, HID_app
 
 
 # Affichage sur l'écran
@@ -22,6 +22,8 @@ index_page = html.Div([
     dcc.Link('Voir les stats sur les données échanges internationaux', href='/apps/importations'),
     html.Br(),
     dcc.Link('Voir les stats sur l\'emploi', href='/apps/emplois'),
+    html.Br(),
+    dcc.Link('Voir les stats sur l\'Indice de Développement Humain', href='/apps/HID'),
 ])
 
 
@@ -37,6 +39,8 @@ def display_page(pathname):
         return covid_app.layout
     elif pathname == '/apps/importations':
         return importations_app.layout
+    elif pathname == '/apps/HID':
+        return HID_app.layout
     else:
         return index_page
 
