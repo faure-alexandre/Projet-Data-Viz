@@ -10,10 +10,10 @@ from dash.dependencies import Input, Output
 from app import app
 
 
-dataFrame=pd.read_csv("data/owid-covid-data.csv")
+dataFrame = pd.read_csv("data/owid-covid-data.csv")
 
-continent=dataFrame.continent.unique().tolist()
-continent=np.delete(continent, 1)
+continent = dataFrame.continent.unique().tolist()
+continent = np.delete(continent, 1)
 
 
 layout = html.Div([
@@ -27,7 +27,7 @@ layout = html.Div([
             dcc.Graph(id='graph_2')
             ],style={'width':'50%','display': 'inline-block'}),
 
-                        # Div for Dropdown
+            # Div for Dropdown
             html.Div([
             dcc.Dropdown(id='selection_pays', 
                         options=[{'label': i, 'value': i} for i in continent],value="Asia")
@@ -39,21 +39,22 @@ layout = html.Div([
 
 @app.callback(
     Output('graph_1', 'figure'),
+    Output('graph_2', 'figure'),
     [Input('selection_pays', 'value')])
-
-
 def update_figure(cont):
     data = dataFrame[dataFrame.continent == cont]
     data_sorted=data.groupby(['location']).human_development_index.mean()
     HDI_per_country=pd.to_numeric(data_sorted.values,errors="coerce")
+    
+    # On prend l'age median pour chaque pays
+    data_age_median = data[['iso_code', 'median_age','location']].groupby(by='location', as_index=False).agg(np.max)
 
+    deaths_permillions = pd.to_numeric(data.groupby(['location']).total_deaths_per_million.last().values,errors="coerce")
+    extreme_poverty = pd.to_numeric(data.groupby(['location']).extreme_poverty.last().values,errors="coerce")
 
-    deaths_permillions=pd.to_numeric(data.groupby(['location']).total_deaths_per_million.last().values,errors="coerce")
-    extreme_poverty=pd.to_numeric(data.groupby(['location']).extreme_poverty.last().values,errors="coerce")
+    age_median = pd.to_numeric(data.groupby(['location']).median_age.last().values,errors="coerce")
 
-    age_median=pd.to_numeric(data.groupby(['location']).median_age.last().values,errors="coerce")
-
-    country=data_sorted.index.values.tolist()
+    country = data_sorted.index.values.tolist()
 
     idx=[]
     for x in range(len(HDI_per_country)):
@@ -77,27 +78,14 @@ def update_figure(cont):
                   colorbar=dict(
                   title ="HDI"),
                   colorscale="Bluered_r"))
-    data = [trace1]
+
     layout = dict(title = 'HDI', yaxis = dict(title = "Décès par millions d'habitants",ticklen =5,zeroline= False))
-    fig1 = dict(data = data, layout = layout)
+    fig1 = dict(data = [trace1], layout = layout)
     
-
-    return fig1
-
-
-@app.callback(
-    Output('graph_2', 'figure'),
-    [Input('selection_pays', 'value')])
-
-def update_figure(cont):
-
-    data = dataFrame[dataFrame.continent == cont]
-    data_sorted=data.groupby(['location']).human_development_index.mean()
-
-
+    
     fig2 = go.Figure(data=go.Choropleth(
-        locations=data['iso_code'], # Spatial coordinates
-        z = data['median_age'].astype(float), # Data to be color-coded
+        locations=data_age_median['iso_code'], # Spatial coordinates
+        z = data_age_median['median_age'].astype(float), # Data to be color-coded
         colorscale = 'Bluered_r',
         colorbar_title = "Age Médian",
         ))
@@ -108,4 +96,6 @@ def update_figure(cont):
             geo_scope=cont.lower(), # limite map scope to USA
              )
 
-    return fig2
+
+    return fig1, fig2
+
