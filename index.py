@@ -3,7 +3,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 
 from app import app
-from apps import pib, emplois
+from apps import pib, emplois, HID
 
 
 app.layout = html.Div([
@@ -19,6 +19,9 @@ def display_page(pathname):
         return pib.layout
     elif pathname == '/apps/emplois':
         return emplois.layout
+    elif pathname == '/apps/HID':
+        return HID.layout
+
     else:
         return '404'
 
