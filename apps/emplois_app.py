@@ -12,6 +12,7 @@ from dash.dependencies import Input, Output
 import plotly.graph_objs as go
 import pandas as pd
 from app import app
+from plotly.subplots import make_subplots
 
 
 # Gestion des donnees
@@ -23,6 +24,29 @@ df = emploi.loc[:,['Pays', 'TIME', 'Value']].loc[emploi.SUBJECT == 'LREM64FE']
 
 available_countries = df['Pays'].unique()
 available_countries2 = df_resume['LOCATION'].unique()
+color=['#fea347','red','green']
+fig_c = make_subplots()
+for i in range(len(available_countries2)):
+    fig_c.add_trace(go.Scatter(
+                    x=df_resume[df_resume.LOCATION == available_countries2[i]].TIME,
+                    y=df_resume[df_resume.LOCATION == available_countries2[i]].Value,
+                    text=df_resume[df_resume.LOCATION == available_countries2[i]]['LOCATION'],
+                    mode='markers+lines',
+                    marker={
+                        'size': 20,
+                        'color': color[i],
+                        'line': {'width': 2, 'color': 'white'}
+                    },
+                    name=available_countries2[i]
+                ) )
+fig_c.update_layout(xaxis={'title': 'Time'},  # 'type':'log'
+                yaxis={'title': 'Taux d\'emploi'},
+                margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
+                legend={'x': 0.0, 'y': 1},
+                hovermode='closest',
+                height=500)
+fig_c.update_layout(paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',title_font_color="white",font_color='white',legend_title_font_color='white',font=dict(size=14))
 
 
 # Layout
@@ -32,6 +56,7 @@ layout = html.Div([
             style={
             'textAlign': 'center',
             }),
+
     dcc.Graph(id='graph_slider', style={'width': '75%', 'height': '350px', 'opacity': '0.8'}),
     dcc.Dropdown(
                 id='selection_pays',
@@ -44,33 +69,8 @@ layout = html.Div([
             style={
             'textAlign': 'center',
             }),
-    dcc.Graph(id='graph_slider2', style={'width': '75%', 'height': '350px', 'opacity': '0.8'},
-              figure={
-            'data': [
-                go.Scatter(
-                    x=df_resume[df_resume.LOCATION == i].TIME,
-                    y=df_resume[df_resume.LOCATION == i].Value,
-                    text=df_resume[df_resume.LOCATION == i]['LOCATION'],
-                    mode='markers+lines',
-                    opacity=0.8,
-                    marker={
-                        'size': 15,
-                        'line': {'width': 0.5, 'color': 'white'}
-                    },
-                    name=i
-                ) for i in available_countries2 
-            ],
-            'layout': go.Layout(
-                xaxis={'title': 'Time'},  # 'type':'log'
-                yaxis={'title': 'Taux d\'emploi'},
-                margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
-                legend={'x': 0.0, 'y': 1},
-                hovermode='closest',
-                height=500
-            )
-        }
-              ),
-    
+    dcc.Graph(id='graph_slider2', style={'width': '75%', 'height': '350px'},
+              figure=fig_c)
 ], style={'text-align': 'center'})
 
 
@@ -82,22 +82,25 @@ def update_figure(selected_country):
     
     df_filter = df[df.Pays== selected_country]
     # Création de la trame 1
-    trace1 = go.Scatter(
+    fig1=go.Figure()
+
+    fig1.add_trace(go.Scatter(
                     x = df_filter.TIME,
                     y = df_filter.Value,
                     mode = "lines",
                     name = "citations",
-                    marker = dict(color = 'rgba(16, 112, 2, 0.8)')) 
+                    marker = dict(color = 'red'),
+                    line=dict(width=4))) #rgba(16, 112, 2, 0.8)
 
 
-    data = [trace1]
-    layout = dict(title = 'Taux d\'emploi',
+    fig1.update_layout(title = 'Taux d\'emploi',
               xaxis = dict(title = 'Time',ticklen =5,zeroline= False),
               yaxis = dict(title = 'Taux d\'emploi',ticklen =5,zeroline= False)
               )
-    fig = dict(data = data, layout = layout)
-
-    return fig
+    fig1.update_layout(paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',title_font_color="white",font_color='white',legend_title_font_color='white',font=dict(size=14))
+    
+    return fig1
 
     
     
