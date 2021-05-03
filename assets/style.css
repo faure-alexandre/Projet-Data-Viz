@@ -1,0 +1,19 @@
+
+body {
+    font-family: 'Trebuchet MS';
+	background-image: url(fond.jpg);
+	width: 95%;
+	margin: auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: white;
+}
+
+td {
+	border: 1px solid black;
+}
+
+.stats_pays {
+	color: black;
+ }
