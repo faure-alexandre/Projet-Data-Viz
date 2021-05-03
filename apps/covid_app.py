@@ -13,13 +13,14 @@ import numpy as np
 from app import app
 import plotly.graph_objs as go
 import pandas as pd
-
+from plotly.subplots import make_subplots
+import dash_bootstrap_components as dbc
 
 # Gestion des données
 donnees_covid = pd.read_csv("data/donnees_covid.csv")
 
 stats_pays = donnees_covid[['location','human_development_index', 'gdp_per_capita', 
-                            'population','life_expectancy','stringency_index']].groupby(by='location', as_index=False).agg(np.max)
+                            'population','life_expectancy','stringency_index', 'continent']].groupby(by='location', as_index=False).agg(np.max)
 
 donnees_covid = donnees_covid[['total_cases','total_deaths','location',
                                'date','continent','total_vaccinations','total_tests']]
@@ -28,43 +29,28 @@ df = donnees_covid.groupby(by='continent', as_index=False).agg(np.max)
 available_countries = donnees_covid['location'].unique()
 
 
+
 # Layout
 layout = html.Div([
-                html.H2(
-                        children="Le COVID en chiffres",
-                        style={
-                            'textAlign': 'center',
-                            }
-                    ),
-    
               html.Div([
                 html.Div([
-                    html.H5(['Sélectionnez un pays: '], style={'width': '40%'}),
+                    #html.H5(['Sélectionnez un pays: '], style={'width': '70%'}),
                     dcc.Dropdown(
                     id='selection_pays',
                     options=[{'label': i, 'value': i} for i in available_countries],
                     value='France',
                     style={'width': '75%'},
-                    )],
-                    style={'display': 'flex','width': '50%', 'margin': '15px'}),
+                    placeholder="Sélectionnez un pays:")],
+                    style={'display': 'flex','width': '65%', 'margin': '15px'}
+                    ),
     
-                   dcc.Graph(id='covid_death_graph', style={'width': '1000px', 'height': '350px','display': 'inline-block', 'opacity': '0.9'}),
-                   ], style={'width': '45%','margin-top': '40px', 'margin-left': '10px','display': 'inline-block'},
+                   dcc.Graph(id='covid_death_graph', style={'width': '800px', 'height': '400px','display': 'inline-block'}),  #, 'opacity': '0.9'
+                   ], style={'width': '40%','margin-top': '40px', 'margin-left': '10px','display': 'inline-block'},
                    className = '1er_graph'), 
               
               html.Div([
-                  dcc.Graph(id='pie', style={'width': '500px', 'height': '350px', 'opacity': '0.9'}, figure=
-                       {'data': [
-                           go.Pie(
-                               values = df.total_deaths,
-                               labels = df.continent,
-                               name = "camembert",
-                               direction = 'clockwise')  
-                           ],
-                       'layout' : dict(title = 'Nombre de morts du COVID par continent')
-                       }
-                            ),
-                  ], style={'width': '35%','margin-top': '50px', 'margin-left': '300px','display': 'inline-block'},
+                  dcc.Graph(id='pie', style={'width': '550px', 'height': '400px', 'opacity': '0.9'}),
+                  ], style={'width': '30%','margin-top': '50px', 'margin-left': '300px','display': 'inline-block'},
                    className = '2eme_graph'),
               
               html.Div([
@@ -74,16 +60,20 @@ layout = html.Div([
                    className = '3eme_graph'), 
               
               html.Div([
-                  html.Table([
-                      html.Tr([html.Td('Indice de developpement'), html.Td(id='HDI')]),
+                  dbc.Table([
+                      html.Tbody([html.Tr([html.Td('Indice de developpement'), html.Td(id='HDI')]),
                       html.Tr([html.Td('PIB'), html.Td(id='gdp')]),
                       html.Tr([html.Td('Population'), html.Td(id='pop')]),
                       html.Tr([html.Td('Espérance de vie'), html.Td(id='life_exp')]),
-                      html.Tr([html.Td('Indice de confinement'), html.Td(id='ind_conf')]),
-                     ]),
-                  ], style={'width': '20%','height': '50%','margin': 'auto', 'margin-left': '400px','display': 'inline-block',
-                            'background-color':'white', 'textAlign': 'center','font-size':'170%',
-                            'vertical-align': 'bottom', 'color': 'red', 'opacity': '0.9'},
+                      html.Tr([html.Td('Indice de confinement'), html.Td(id='ind_conf')])]),
+                     ],bordered=True,
+                      dark=True,
+                      hover=True,
+                      responsive=True,
+                      striped=True),
+                  ], style={'width': '30%','height': '30%','margin': 'auto', 'margin-left': '300px','display': 'inline-block',
+                             'textAlign': 'center','font-size':'150%',
+                            'vertical-align': 'bottom'},
                    className = 'stats_pays'),
               ], className = 'bloc_bas', style={'display': 'flex'})  ,            
         ], className = 'bloc_page')
@@ -93,42 +83,65 @@ layout = html.Div([
 # Callbacks
 @app.callback(
     Output('covid_death_graph', 'figure'),
+    Output('pie', 'figure'),
     Output('vaccination_graph', 'figure'),
     [Input('selection_pays', 'value')])
 def update_figure(selected_country):
     
     donnees_covid_filter = donnees_covid[donnees_covid.location == selected_country]
     # Création de la trame 1
-    trace1 = go.Scatter(
+    fig1 = go.Figure()
+    fig1.add_trace(go.Scatter(
                     x = donnees_covid_filter.date,
                     y = donnees_covid_filter.total_deaths,
                     mode = "lines",
                     name = "citations",
-                    marker = dict(color = 'rgba(16, 112, 2, 0.8)')) 
+                    marker = dict(color = 'red'),
+                    line = dict(width=4))) #rgba(16, 112, 2, 0.8)
 
 
-    data = [trace1]
-    layout = dict(title = 'Nombre de morts du COVID par pays',
-              xaxis = dict(title = 'Time',ticklen =5,zeroline= False),
-              yaxis = dict(title = 'Morts',ticklen =5,zeroline= False)
-              )
-    fig1 = dict(data = data, layout = layout)
     
-    trace2 = go.Bar(
+    fig1.update_layout(title = 'Nombre de morts du COVID par pays',
+              xaxis = dict(title = 'Time',ticklen =5,zeroline= False),
+              yaxis = dict(title = 'Morts',ticklen =5,zeroline= False))
+
+    fig1.update_layout(paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',title_font_color="white",font_color='white',legend_title_font_color='white',font=dict(size=14))
+    
+    
+    fig2 = go.Figure()
+    fig2.add_trace( go.Bar(
                     x = donnees_covid_filter.date,
                     y = donnees_covid_filter.total_vaccinations,
                     name = "citations",
-                    marker = dict(color = 'rgba(16, 112, 2, 0.8)')) 
+                    marker = dict(color = 'red'))) #'rgba(16, 112, 2, 0.8)'
 
-
-    data2 = [trace2]
-    layout2 = dict(title = 'Nombre de vaccinations',
+    fig2.update_layout(title = 'Nombre de vaccinations',
               xaxis = dict(title = 'Time',ticklen =5,zeroline= False),
               yaxis = dict(title = 'Nb personnes vaccinées',ticklen =5,zeroline= False)
               )
-    fig2 = dict(data = data2, layout = layout2)
 
-    return fig1, fig2
+    fig2.update_layout(paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',title_font_color="white",font_color='white',legend_title_font_color='white',font=dict(size=14))
+    
+    
+    cont = str(stats_pays.continent[stats_pays.location == selected_country].values[0])
+    pl = np.zeros((df.shape[0],))
+    idx = np.where(df.continent==cont)
+    pl[idx]=0.15
+    
+    fig_chart=go.Figure()
+    fig_chart.add_trace(go.Pie(
+                               values = df.total_deaths,
+                               labels = df.continent,
+                               name = "camembert",
+                               direction = 'clockwise',
+                               pull = pl))
+
+    fig_chart.update_layout(title = 'Nombre de morts du COVID par continent',paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',title_font_color="white",font_color='white',legend_title_font_color='white',font=dict(size=14))
+    
+    return fig1, fig_chart, fig2
 
 @app.callback(
     Output('HDI', 'children'),
