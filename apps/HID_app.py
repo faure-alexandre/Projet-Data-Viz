@@ -82,8 +82,8 @@ def update_figure(cont):
                   title ="HDI"),
                   colorscale="Bluered_r")))
 
-    fig1.update_layout(title = 'HDI', yaxis = dict(title = "Décès par millions d'habitants"),paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',title_font_color="white",font_color='white',legend_title_font_color='white',font=dict(size=14))
+    fig1.update_layout(title = 'HDI', yaxis = dict(title = "Décès par millions d'habitants"),paper_bgcolor='rgba(7,13,64,255)',
+        plot_bgcolor='rgba(7,13,64,255)',title_font_color="white",font_color='white',legend_title_font_color='white',font=dict(size=14))
     
     
     
