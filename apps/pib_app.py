@@ -11,7 +11,6 @@ from dash.dependencies import Input, Output
 
 import plotly.graph_objs as go
 import pandas as pd
-from plotly.subplots import make_subplots
 
 from app import app
 
@@ -46,7 +45,9 @@ layout = html.Div(children=[
     dcc.Dropdown(
                 id='selection_pays',
                 options=[{'label': pays, 'value': pays} for pays in liste_pays],
-                value=['OCDE - Total'], style={'width':'30%'}, className='row',
+                value=['OCDE - Total'], 
+                style={'width':'50%'},
+                className='row',
                 multi=True
             ),
 ])
@@ -67,7 +68,7 @@ def update_figure(choix_pays):
                     #marker = dict(color = 'red'),   #rgba(16, 112, 2, 1)
                     line = dict(width=4)))
     
-    
+
 
 
     fig.update_layout(title = 'PIB trimestriel',
