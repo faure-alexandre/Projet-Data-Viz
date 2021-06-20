@@ -2,12 +2,12 @@
 """
 Created on Thu Apr 29 10:46:47 2021
 
-@author: Arnaud
 """
 
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
+import dash_bootstrap_components as dbc
 
 import plotly.graph_objs as go
 import pandas as pd
@@ -50,7 +50,25 @@ layout = html.Div(children=[
                 className='row',
                 multi=True
             ),
-])
+    
+    # html.Div([
+    #                 dbc.Button(
+    #                     "Interprétation",
+    #                     id="collapse-button_actions",
+    #                     className="mb-3",
+    #                     color="primary",
+    #                     ),
+    #                 dbc.Collapse(
+    #                     dbc.Card([
+    #                         dbc.CardHeader("Interprétation"),
+    #                         dbc.CardBody("Explication ici."
+    #                                 ),
+    #                         ]),
+    #                     id="collapse_actions",
+    #                     ),
+    #                 ], style={'margin-right':'100px', 'margin-left': '100px', 'margin-top': '10px'})
+    
+], className = 'bloc_page')
 
 @app.callback(
     Output('graph_pib', 'figure'),
@@ -74,9 +92,18 @@ def update_figure(choix_pays):
     fig.update_layout(title = 'PIB trimestriel',
               xaxis = dict(title = 'Trimestre',ticklen =5,zeroline= False),
               yaxis = dict(title = 'Indice de volume du PIB',ticklen =5,zeroline= False))
-    fig.update_layout(paper_bgcolor='rgba(7,13,64,255)',
-        plot_bgcolor='rgba(7,13,64,255)',title_font_color="white",font_color='white',legend_title_font_color='white',font=dict(size=14))
+    fig.update_layout(paper_bgcolor='rgba(0,0,0,0)', #'rgba(7,13,64,255)',
+        plot_bgcolor='rgba(0,0,0,0)',title_font_color="white",font_color='white',legend_title_font_color='white',font=dict(size=14))
     
 
     return fig
 
+
+@app.callback(
+    Output("collapse_pib", "is_open"),
+    [Input("collapse-button_pib", "n_clicks")],
+    [Input("collapse_actions", "is_open")])
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open

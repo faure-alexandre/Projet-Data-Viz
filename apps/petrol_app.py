@@ -10,6 +10,7 @@ from plotly.offline import init_notebook_mode, iplot, plot
 from plotly import subplots
 from plotly.subplots import make_subplots
 from dash.dependencies import Input, Output
+import dash_bootstrap_components as dbc
 from app import app
 
 
@@ -40,10 +41,29 @@ layout = html.Div([
                         # Div for Dropdown
             html.Div([
             dcc.RadioItems(id='selection_pays',
-                        options=[{'label': i, 'value': i} for i in country_petrole],value="United States")
+                        options=[{'label': i, 'value': i} for i in country_petrole],value="United States",
+                        labelStyle={'margin-left':'10px', 'cursor': 'pointer'})
                         ],style={'width':'100%','color': '#FFFFFF'}, className='row'),
 
-])
+            # html.Div([
+            #         dbc.Button(
+            #             "Interprétation",
+            #             id="collapse-button_petrol",
+            #             className="mb-3",
+            #             color="primary",
+            #             ),
+            #         dbc.Collapse(
+            #             dbc.Card([
+            #                 dbc.CardHeader("Interprétation"),
+            #                 dbc.CardBody("Ce graphique permet de mettre en évidence l'impact de la crise du covid sur l'évolution du prix du baril de pétrole\
+            #                             parmis les 10 plus grands exportateurs mondiaux."
+            #                         ),
+            #                 ]),
+            #             id="collapse_petrol",
+            #             ),
+            #         ], style={'margin-right':'100px', 'margin-left': '100px', 'margin-top': '10px'})
+    
+    ], className = 'bloc_page')
 
 
 
@@ -89,3 +109,12 @@ def update_figure(cont):
         plot_bgcolor='rgba(0,0,0,0)',title_font_color="white",font_color='white',legend_title_font_color='white',font=dict(size=14))
 
     return fig2
+
+@app.callback(
+    Output("collapse_petrol", "is_open"),
+    [Input("collapse-button_petrol", "n_clicks")],
+    [Input("collapse_petrol", "is_open")])
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
