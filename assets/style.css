@@ -2,9 +2,10 @@
 body {
     font-family: 'Trebuchet MS';
 	background-image: url(fond.jpg);
-	width: 93%;
+	width: 95%;
 	margin: auto;
 }
+
 
 h1, h2, h3, h4, h5, h6 {
     color: white;
@@ -17,3 +18,57 @@ td {
 .stats_pays {
 	color: black;
  }
+ 
+ 
+/* Styles pour la page d'accueil */ 
+.accueil .abstract, .accueil .deroulement_projet, .accueil .plan_dashboard{
+	font-size: 1.15em;
+	border: 3px blue ridge;
+	border-radius: 10px;
+	width: 80%;
+    margin: auto;
+	padding: 20px;
+	margin-top: 15px;
+	background-color: rgba(24,24,24,0.75);
+	color: white;
+	text-align: center;
+}
+
+.accueil a {
+	text-decoration: underline;
+	color: blue;
+}
+
+.accueil ul{
+	display: inline-block;
+	text-align: center;
+	text-align:left;
+}
+
+/*
+.accueil .conteneur_flex {
+	display: flex;
+}
+*/
+
+.bloc_page{
+	background-color: rgba(24,24,24,0.5);
+	padding-right: 40px;
+	padding-left: 40px;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	margin-bottom: 20px;
+}
+	
+.parametres{
+	font-size: 1.15em;
+	border: 3px black ridge;
+	border-radius: 1px;
+	width: 80%;
+    margin: auto;
+	padding: 20px;
+	margin-top: 15px;
+	background-color: rgba(24,24,24,0.75);
+	color: white;
+	text-align: center;
+}

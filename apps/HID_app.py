@@ -9,6 +9,7 @@ from plotly import subplots
 from dash.dependencies import Input, Output
 from app import app
 from plotly.subplots import make_subplots
+import dash_bootstrap_components as dbc
 
 
 dataFrame=pd.read_csv("data/owid-covid-data.csv")
@@ -18,7 +19,12 @@ continent=np.delete(continent, 1)
 
 
 layout = html.Div([
-
+            # Div for Dropdown
+            html.Div([
+            dcc.Dropdown(id='selection_pays', 
+                        options=[{'label': i, 'value': i} for i in continent], value="Asia")
+            ],style={'width':'10%','color':'blue'}),
+            
             # Div for graph1
             html.Div([
             dcc.Graph(id='graph_1')
@@ -28,14 +34,33 @@ layout = html.Div([
             html.Div([
             dcc.Graph(id='graph_2')
             ],style={'width':'49%','display': 'inline-block'}),
-
-            # Div for Dropdown
+            
             html.Div([
-            dcc.Dropdown(id='selection_pays', 
-                        options=[{'label': i, 'value': i} for i in continent],value="Asia")
-                        ],style={'width':'10%','color':'blue'}),
+                    dbc.Button(
+                        "Interprétation",
+                        id="collapse-button_hid",
+                        className="mb-3",
+                        color="primary",
+                        ),
+                    dbc.Collapse(
+                        dbc.Card([
+                            dbc.CardHeader("Interprétation"),
+                            dbc.CardBody([
+                                html.P("Ce graphique permet de mettre en évidence l'impact du covid sur le nombre de décès en fonction du niveau\
+                                        de développement des pays."),
+                                html.P("L'indice de développement humain ou HDI est un indice statistique composite pour évaluer le taux de développement\
+                                        humain des pays du monde. L'HDI se fonde sur trois critères: le PIB par habitant, l'espérance de vie à la naissance\
+                                        et le niveau d'éducation des enfants de 17 ans et plus."),
+                                html.P("On peut remarquer sur le premier graphique que les pays les plus touchés en termes de morts sont les pays les plus développés (ayant un fort HDI).\
+                                        Ceci peut s'expliquer en partie par le fait que globalement les pays les plus riches ont une population plus\
+                                        âgée (ce que montre le second graphe en affichant l'âge médian de chaque pays) qui est donc plus susceptible de développer des formes graves de la maladie."),
+                                    ]),
+                            ]),
+                        id="collapse_hid",
+                        ),
+                    ], style={'margin-right':'100px', 'margin-left': '100px', 'margin-top': '10px'})
 
-])
+], className = 'bloc_page')
 
 
 
@@ -82,8 +107,8 @@ def update_figure(cont):
                   title ="HDI"),
                   colorscale="Bluered_r")))
 
-    fig1.update_layout(title = 'HDI', yaxis = dict(title = "Décès par millions d'habitants"),paper_bgcolor='rgba(7,13,64,255)',
-        plot_bgcolor='rgba(7,13,64,255)',title_font_color="white",font_color='white',legend_title_font_color='white',font=dict(size=14))
+    fig1.update_layout(title = 'HDI', yaxis = dict(title = "Décès par millions d'habitants"),paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',title_font_color="white",font_color='white',legend_title_font_color='white',font=dict(size=14))
     
     
     
@@ -107,3 +132,11 @@ def update_figure(cont):
     return fig1, fig2
 
 
+@app.callback(
+    Output("collapse_hid", "is_open"),
+    [Input("collapse-button_hid", "n_clicks")],
+    [Input("collapse_hid", "is_open")])
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open

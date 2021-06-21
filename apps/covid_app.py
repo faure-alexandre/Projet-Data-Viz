@@ -2,7 +2,6 @@
 """
 Created on Tue Apr 27 16:27:41 2021
 
-@author: Alexandre
 """
 
 import dash
@@ -24,41 +23,33 @@ stats_pays = donnees_covid[['location','human_development_index', 'gdp_per_capit
 
 donnees_covid = donnees_covid[['total_cases','total_deaths','location',
                                'date','continent','total_vaccinations','total_tests']]
-df = donnees_covid.groupby(by='continent', as_index=False).agg(np.max)
+df = donnees_covid.groupby(by='location', as_index=False).agg(np.max).groupby(by='continent', as_index=False).agg(np.sum)
 
 available_countries = donnees_covid['location'].unique()
 
 
-
 # Layout
 layout = html.Div([
-              html.Div([
-                html.Div([
-                    #html.H5(['Sélectionnez un pays: '], style={'width': '70%'}),
+              
+            html.Div([
                     dcc.Dropdown(
                     id='selection_pays',
                     options=[{'label': i, 'value': i} for i in available_countries],
                     value='France',
-                    style={'width': '75%'},
-                    placeholder="Sélectionnez un pays:")],
-                    style={'display': 'flex','width': '65%', 'margin': '15px'}
-                    ),
-    
-                   dcc.Graph(id='covid_death_graph', style={'width': '800px', 'height': '400px','display': 'inline-block'}),  #, 'opacity': '0.9'
-                   ], style={'width': '40%','margin-top': '40px', 'margin-left': '10px','display': 'inline-block'},
-                   className = '1er_graph'), 
-              
-              html.Div([
-                  dcc.Graph(id='pie', style={'width': '550px', 'height': '400px', 'opacity': '0.9'}),
-                  ], style={'width': '30%','margin-top': '50px', 'margin-left': '300px','display': 'inline-block'},
-                   className = '2eme_graph'),
-              
-              html.Div([
-              html.Div([
-                   dcc.Graph(id='vaccination_graph', style={'width': '1000px', 'height': '350px','display': 'inline-block', 'opacity': '0.9'}),
-                   ], style={'width': '45%','margin-top': '25px', 'margin-left': '10px','display': 'inline-block'},
-                   className = '3eme_graph'), 
-              
+                    placeholder="Sélectionnez un pays:",
+                    style={'width': '220px', 'display': 'inline-block', 'margin-right': '20px'}),
+                    
+               html.Div([
+                    dbc.Spinner( dbc.Button("Actualiser les données (~30s)", id="actualisation-button", className="mr-2"), fullscreen=False )
+                    ], style={'display': 'inline-block', 'width': '150px', 'height': '20px', 'vertical-align': 'center'}
+                  ),
+            ], className='parameters', 
+               style={'text-align': 'left', 'margin-right': '100px', 'margin-bottom': '20px'}),
+            
+            html.Div([
+                  dcc.Graph(id='covid_death_graph', style={'width': '45%', 'height': '400px','display': 'inline-block'}),
+                  dcc.Graph(id='pie', style={'width': '45%', 'height': '400px', 'display': 'inline-block'}),
+                  dcc.Graph(id='vaccination_graph', style={'width': '45%', 'margin-right': '200px', 'height': '400px','display': 'inline-block'}),
               html.Div([
                   dbc.Table([
                       html.Tbody([html.Tr([html.Td('Indice de developpement'), html.Td(id='HDI')]),
@@ -71,12 +62,12 @@ layout = html.Div([
                       hover=True,
                       responsive=True,
                       striped=True),
-                  ], style={'width': '30%','height': '30%','margin': 'auto', 'margin-left': '300px','display': 'inline-block',
-                             'textAlign': 'center','font-size':'150%',
-                            'vertical-align': 'bottom'},
-                   className = 'stats_pays'),
-              ], className = 'bloc_bas', style={'display': 'flex'})  ,            
-        ], className = 'bloc_page')
+                  ], style={'width': '25%','height': '400px', 'display': 'inline-block',
+                             'textAlign': 'center','font-size':'150%', 'vertical-align': 'bottom', 'margin-right': '150px', 'margin-top': '20px'},
+                   className = 'tableau'),
+              ], className='graphiques', style={'text-align': 'center'})
+                            
+        ], className = 'bloc_page', style={'text-align': 'center'})
 
 
                             
@@ -85,9 +76,22 @@ layout = html.Div([
     Output('covid_death_graph', 'figure'),
     Output('pie', 'figure'),
     Output('vaccination_graph', 'figure'),
-    [Input('selection_pays', 'value')])
-def update_figure(selected_country):
+    [Input('selection_pays', 'value')],
+    [Input("actualisation-button", "disabled")])
+def update_figure(selected_country, nb_clicks):
     
+    donnees_covid = pd.read_csv("data/donnees_covid.csv")
+
+    stats_pays = donnees_covid[['location','human_development_index', 'gdp_per_capita', 
+                            'population','life_expectancy','stringency_index', 'continent']].groupby(by='location', as_index=False).agg(np.max)
+
+    donnees_covid = donnees_covid[['total_cases','total_deaths','location',
+                               'date','continent','total_vaccinations','total_tests']]
+    df = donnees_covid.groupby(by='location', as_index=False).agg(np.max).groupby(by='continent', as_index=False).agg(np.sum)
+
+    available_countries = donnees_covid['location'].unique()
+
+
     donnees_covid_filter = donnees_covid[donnees_covid.location == selected_country]
     # Création de la trame 1
     fig1 = go.Figure()
@@ -111,12 +115,12 @@ def update_figure(selected_country):
     
     fig2 = go.Figure()
     fig2.add_trace( go.Bar(
-                    x = donnees_covid_filter.date,
-                    y = donnees_covid_filter.total_vaccinations,
+                    x = donnees_covid_filter[donnees_covid_filter.date > '2020-12-15'].date,
+                    y = donnees_covid_filter[donnees_covid_filter.date > '2020-12-15'].total_vaccinations,
                     name = "citations",
                     marker = dict(color = 'red'))) #'rgba(16, 112, 2, 0.8)'
 
-    fig2.update_layout(title = 'Nombre de vaccinations',
+    fig2.update_layout(title = 'Nombre de doses de vaccin administrées',
               xaxis = dict(title = 'Time',ticklen =5,zeroline= False),
               yaxis = dict(title = 'Nb personnes vaccinées',ticklen =5,zeroline= False)
               )
@@ -149,8 +153,9 @@ def update_figure(selected_country):
     Output('pop', 'children'),
     Output('life_exp', 'children'),
     Output('ind_conf', 'children'),
-    [Input('selection_pays', 'value')])
-def callback_tableau(x):
+    [Input('selection_pays', 'value')],
+    [Input("actualisation-button", "disabled")])
+def callback_tableau(x, n):
     hdi = stats_pays.human_development_index[stats_pays.location == x]
     gdp = stats_pays.gdp_per_capita[stats_pays.location == x]
     pop = stats_pays.population[stats_pays.location == x]
@@ -158,5 +163,21 @@ def callback_tableau(x):
     ind_conf = stats_pays.stringency_index[stats_pays.location == x]
     
     return float(hdi), float(gdp), float(pop), float(life_exp), float(ind_conf)
+
+
+
+@app.callback(
+    Output("actualisation-button", "disabled"), 
+    [Input("actualisation-button", "n_clicks")])
+def on_button_click(n):
+    
+    if n is None:
+        return False
+    else:
+        url='https://covid.ourworldindata.org/data/owid-covid-data.csv'
+        pd.read_csv(url).to_csv(path_or_buf='data/donnees_covid.csv')
+
+        return True
+    
 
 
