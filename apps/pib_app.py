@@ -51,22 +51,33 @@ layout = html.Div(children=[
                 multi=True
             ),
     
-    # html.Div([
-    #                 dbc.Button(
-    #                     "Interprétation",
-    #                     id="collapse-button_actions",
-    #                     className="mb-3",
-    #                     color="primary",
-    #                     ),
-    #                 dbc.Collapse(
-    #                     dbc.Card([
-    #                         dbc.CardHeader("Interprétation"),
-    #                         dbc.CardBody("Explication ici."
-    #                                 ),
-    #                         ]),
-    #                     id="collapse_actions",
-    #                     ),
-    #                 ], style={'margin-right':'100px', 'margin-left': '100px', 'margin-top': '10px'})
+    html.Div([
+                    dbc.Button(
+                        "Interprétation",
+                        id="collapse-button_actions",
+                        className="mb-3",
+                        color="primary",
+                        ),
+                    dbc.Collapse(
+                        dbc.Card([
+                            dbc.CardHeader("Interprétation"),
+                            dbc.CardBody([
+                                html.P("Ce graphique permet de mettre en évidence l'impact du covid sur le PIB des pays membres de l'OCDE."),
+                                html.P("En effet, on voit très nettement une baisse du PIB au deuxième trimestre 2020, et ce pour la totalité des pays de l'OCDE.\
+                                        Cette baisse du PIB est la résultante d'une baisse des activités dans de nombreux secteurs (Tourisme, hôtellerie restauration, culture,...) dû aux restrictions sanitaires tel que les confinements.\
+                                        Cette baisse du PIB est aussi la conséquence de la chute des échanges commerciaux (cf la page Echanges commerciaux).\
+                                        Enfin, cette baisse du PIB est aussi certainement lié à une baisse de la consommation et une réticence à embaucher et investir dans une période compliqué et les perspéctives d'un avenir incertain."),
+                                html.P("Cependant, après cette chute record le PIB remonte très nettement au troisième trimestre 2020, probablement dû à une reprise d'activité et de consommation lié à la baisse des restrictions sanitaires pendant l'été,\
+                                        à une reprise des échanges commerciaux,\
+                                        ainsi qu'aux plans des états et de l'Europe pour relancer l'économie.\
+                                        Malgrès cette remontée le PIB n'atteind pas les valeurs d'avant le covid."),
+                                html.P("Si l'on compare l'impact économique du covid avec la crise financière de 2008, \
+                                        on peut voir que le PIB chute plus brutalement qu'en 2008 mais qu'il remonte aussi plus rapidement.")
+                                    ]),
+                            ]),
+                        id="collapse_actions",
+                        ),
+                    ], style={'margin-right':'100px', 'margin-left': '100px', 'margin-top': '10px'})
     
 ], className = 'bloc_page')
 
