@@ -3,6 +3,7 @@ Readme
 
 - [Readme](#readme)
   - [Description](#description)
+  - [Lien du Dashboard](#lien-du-dashboard)
   - [Plan du dashboard](#plan-du-dashboard)
     - [`/apps`](#apps)
     - [`/assets`](#assets)
@@ -21,6 +22,12 @@ ainsi que l’analyse de ces données et des pré-traitements nécessaires à ce
 2. Le dashboard sera réalisé en Dash. Il devra permettre une interprétation évidente des données (les graphiques devront être sélectionnés avec soin).
 3. Le dashboard doit également contenir l’analyse sémantique que vous faites des données suite à votre travail.
 4. Le dashboard devra offrir un rendu visuel de qualité publiable (css, boostrap components...) et sera hébergé sur le serveur cloud Heroku afin de pouvoir être ommuniqué sur des supports numériques (LinkedIn, CV …).
+
+
+## Lien du Dashboard
+Le Dashboard a été déployé sur un serveur Heroku disponible à l'adresse suivante: 
+
+https://dataviz-aaf.herokuapp.com/.
 
 
 ## Plan du dashboard
